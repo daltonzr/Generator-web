@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="styles/style.css">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Générateur de Code QR</title>
+</head>
+<body>
+<header>
+<nav>
+<a href="index.html">Accueil</a>
+<a href="generator-all.html">Générateurs</a>
+<a href="contact.html">Contact</a>
+</nav>
+</header>
+
+<main>
+    <section>
+        <h1>Générateur de Code QR</h1>
+
+        <label for="qr-content">Entrez le contenu à encoder dans le QR :</label>
+        <input type="text" id="qr-content" placeholder="Entrez une URL, un texte, etc.">
+
+        <br>
+
+        <label for="qr-size">Taille du QR (en pixels) :</label>
+        <input type="number" id="qr-size" min="100" max="1000" value="200">
+
+        <br>
+
+        <button id="generate-qr">Générer le QR Code</button>
+
+        <h3>Voici votre code QR :</h3>
+        <div id="qr-code"></div>
+
+        <br>
+
+        <button id="download-qr">Télécharger le QR Code</button>
+    </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
+<script>
+    const generateButton = document.getElementById('generate-qr');
+    const downloadButton = document.getElementById('download-qr');
+
+    generateButton.addEventListener('click', () => {
+        const qrContent = document.getElementById('qr-content').value;
+        const qrSize = document.getElementById('qr-size').value;
+
+        if (!qrContent) {
+            alert('Veuillez entrer un contenu à encoder dans le QR.');
+            return;
+        }
+
+        const qrCodeContainer = document.getElementById('qr-code');
+        qrCodeContainer.innerHTML = ''; // Réinitialiser le conteneur
+
+        const qrCode = new QRCode(qrCodeContainer, {
+            text: qrContent,
+            width: parseInt(qrSize),
+            height: parseInt(qrSize)
+        });
+    });
+
+    downloadButton.addEventListener('click', () => {
+        const qrCodeContainer = document.getElementById('qr-code').querySelector('img');
+        
+        if (!qrCodeContainer) {
+            alert('Veuillez d\'abord générer un QR code.');
+            return;
+        }
+
+        const qrCodeUrl = qrCodeContainer.src;
+        const link = document.createElement('a');
+        link.href = qrCodeUrl;
+        link.download = 'qr-code.png';
+        link.click();
+    });
+</script>
+
+</body>
+<footer>
+    <p>© <span id="year"></span> Generator Factory - Tous droits réservés</p>
+</footer>
+</html>

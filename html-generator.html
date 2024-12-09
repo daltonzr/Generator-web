@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+  <link rel="stylesheet" href="styles/style.css">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Générateur de Code HTML + CSS</title>
+</head>
+<body>
+<header>
+<nav>
+<a href="index.html">Accueil</a>
+<a href="generator-all.html">Générateurs</a>
+<a href="contact.html">Contact</a>
+</nav>
+</header>
+
+<main>
+    <section>
+        <h1>Générateur de Code HTML</h1>
+
+        <label for="title">Titre de la page :</label>
+        <input type="text" id="title" placeholder="Titre de la page" value="Ma Page Web">
+
+        <label><input type="checkbox" id="add-nav"> Ajouter un menu de navigation</label>
+
+        <label for="num-sections">Nombre de sections :</label>
+        <input type="number" id="num-sections" min="1" max="10" value="1">
+
+        <button id="add-sections">Ajouter les sections</button>
+
+        <div id="sections-container"></div>
+
+        <label><input type="checkbox" id="add-footer"> Ajouter un pied de page</label>
+
+        <button id="generate-html">Générer le code HTML</button>
+
+        <h3>Code HTML généré :</h3>
+        <textarea id="html-code" rows="10" cols="50" readonly></textarea>
+
+        <button id="copy-html">Copier le code HTML</button>
+    </section>
+
+    <hr>
+
+    <section>
+        <h1>Générateur de CSS</h1>
+
+        <label for="body-bg-color">Couleur de fond de la page :</label>
+        <input type="color" id="body-bg-color" value="#ffffff">
+
+        <label for="body-text-color">Couleur du texte :</label>
+        <input type="color" id="body-text-color" value="#000000">
+
+        <label for="body-font-size">Taille de la police du texte (px) :</label>
+        <input type="number" id="body-font-size" min="10" max="50" value="16">
+
+        <button id="generate-css">Générer le code CSS</button>
+
+        <h3>Code CSS généré :</h3>
+        <textarea id="css-code" rows="10" cols="50" readonly></textarea>
+
+        <button id="copy-css">Copier le code CSS</button>
+    </section>
+
+    <hr>
+
+    <section>
+        <h1>Console d'aperçu</h1>
+        <iframe id="preview-console" style="width: 100%; height: 500px; border: 1px solid #000;"></iframe>
+    </section>
+</main>
+
+<script>
+    /*** GÉNÉRATEUR DE HTML ***/
+    document.getElementById('add-sections').addEventListener('click', () => {
+        const sectionsContainer = document.getElementById('sections-container');
+        sectionsContainer.innerHTML = '';
+        
+        const numSections = parseInt(document.getElementById('num-sections').value);
+        
+        for (let i = 0; i < numSections; i++) {
+            const sectionDiv = document.createElement('div');
+            sectionDiv.classList.add('section-block');
+            
+            sectionDiv.innerHTML = `
+                <h3>Section ${i + 1}</h3>
+
+                <label for="heading${i}">Titre (H1 à H6) :</label>
+                <select id="heading${i}">
+                    <option value="h1">H1</option>
+                    <option value="h2">H2</option>
+                    <option value="h3">H3</option>
+                </select>
+
+                <input type="text" id="section-title${i}" placeholder="Titre de la section" value="Titre de la section ${i + 1}">
+
+                <label for="content${i}">Contenu de la section :</label>
+                <textarea id="content${i}" rows="3" placeholder="Contenu de la section"></textarea>
+            `;
+
+            sectionsContainer.appendChild(sectionDiv);
+        }
+    });
+
+    document.getElementById('generate-html').addEventListener('click', () => {
+        const title = document.getElementById('title').value;
+
+        let navContent = '';
+        if (document.getElementById('add-nav').checked) {
+            navContent = `
+    <nav>
+        <a href="#">Accueil</a>
+        <a href="#">À propos</a>
+        <a href="#">Services</a>
+        <a href="#">Contact</a>
+    </nav>
+            `;
+        }
+
+        let sectionsContent = '';
+        const sectionBlocks = document.querySelectorAll('.section-block');
+
+        sectionBlocks.forEach((block, index) => {
+            const headingType = block.querySelector(`#heading${index}`).value;
+            const headingText = block.querySelector(`#section-title${index}`).value;
+            const contentText = block.querySelector(`#content${index}`).value;
+
+            sectionsContent += `
+    <section>
+        <${headingType}>${headingText}</${headingType}>
+        <p>${contentText}</p>
+    </section>
+            `;
+        });
+
+        let footerContent = '';
+        if (document.getElementById('add-footer').checked) {
+            footerContent = `
+    <footer>
+        <p>&copy; 2024 - Mon site web</p>
+    </footer>
+            `;
+        }
+
+        const htmlCode = `
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>${title}</title>
+</head>
+<body>
+${navContent}
+${sectionsContent}
+${footerContent}
+</body>
+</html>
+        `;
+
+        document.getElementById('html-code').value = htmlCode.trim();
+        updatePreview();
+    });
+
+    document.getElementById('copy-html').addEventListener('click', () => {
+        const htmlCode = document.getElementById('html-code');
+        htmlCode.select();
+        document.execCommand('copy');
+        alert('Le code HTML a été copié !');
+    });
+
+    /*** GÉNÉRATEUR DE CSS ***/
+    document.getElementById('generate-css').addEventListener('click', () => {
+        const bgColor = document.getElementById('body-bg-color').value;
+        const textColor = document.getElementById('body-text-color').value;
+        const fontSize = document.getElementById('body-font-size').value;
+
+        const cssCode = `
+body {
+    background-color: ${bgColor};
+    color: ${textColor};
+    font-size: ${fontSize}px;
+}
+        `;
+
+        document.getElementById('css-code').value = cssCode.trim();
+        updatePreview();
+    });
+
+    document.getElementById('copy-css').addEventListener('click', () => {
+        const cssCode = document.getElementById('css-code');
+        cssCode.select();
+        document.execCommand('copy');
+        alert('Le code CSS a été copié !');
+    });
+
+    /*** CONSOLE D'APERÇU ***/
+    function updatePreview() {
+        const previewFrame = document.getElementById('preview-console');
+        const previewDoc = previewFrame.contentDocument || previewFrame.contentWindow.document;
+        const htmlCode = document.getElementById('html-code').value;
+        const cssCode = document.getElementById('css-code').value;
+
+        const fullContent = `
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <style>${cssCode}</style>
+</head>
+<body>
+${htmlCode}
+</body>
+</html>
+        `;
+
+        previewDoc.open();
+        previewDoc.write(fullContent);
+        previewDoc.close();
+    }
+</script>
+
+</body>
+</html>

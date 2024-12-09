@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="styles/style.css">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Générateur de Carte de Jeu D&D</title>
+</head>
+<body>
+<header>
+<nav>
+<a href="index.html">Accueil</a>
+<a href="generator-all.html">Générateurs</a>
+<a href="contact.html">Contact</a>
+</nav>
+</header>
+
+<main>
+    <section>
+        <h1>Générateur de Carte de Jeu D&D</h1>
+
+        <label for="map-size">Taille de la carte (cases) :</label>
+        <input type="number" id="map-size" min="5" max="50" value="10">
+
+        <br>
+
+        <label for="cell-size">Taille des cases (en pixels) :</label>
+        <input type="number" id="cell-size" min="20" max="100" value="30">
+
+        <br>
+
+        <h3>Terrains à inclure :</h3>
+        <label><input type="checkbox" class="terrain-option" value="🌲" checked> Forêt (🌲)</label>
+        <label><input type="checkbox" class="terrain-option" value="🏰" checked> Château (🏰)</label>
+        <label><input type="checkbox" class="terrain-option" value="💧" checked> Eau (💧)</label>
+        <label><input type="checkbox" class="terrain-option" value="🪵" checked> Bois (🪵)</label>
+        <label><input type="checkbox" class="terrain-option" value="🪨" checked> Roche (🪨)</label>
+        <label><input type="checkbox" class="terrain-option" value="🌿" checked> Herbe (🌿)</label>
+        <label><input type="checkbox" class="terrain-option" value="🔥" checked> Feu (🔥)</label>
+
+        <br>
+
+        <h3>Éléments supplémentaires :</h3>
+        <label><input type="checkbox" id="include-enemies" checked> Ennemis (⚔️)</label>
+        <label><input type="checkbox" id="include-traps" checked> Pièges (🕳️)</label>
+        <label><input type="checkbox" id="include-treasures" checked> Trésors (💎)</label>
+
+        <br>
+
+        <button id="generate-map">Générer la Carte</button>
+        <button id="download-map">Télécharger la Carte</button>
+
+        <h3>Carte générée :</h3>
+        <div id="map-container"></div>
+    </section>
+</main>
+
+<script>
+    function generateMap(size, cellSize, terrains, includeEnemies, includeTraps, includeTreasures) {
+        const mapContainer = document.getElementById('map-container');
+        mapContainer.innerHTML = ''; // Réinitialiser la carte
+
+        for (let row = 0; row < size; row++) {
+            const rowDiv = document.createElement('div');
+            rowDiv.classList.add('map-row');
+
+            for (let col = 0; col < size; col++) {
+                const cell = document.createElement('div');
+                cell.classList.add('map-cell');
+
+                // Sélectionner un terrain aléatoire
+                const randomTerrain = terrains[Math.floor(Math.random() * terrains.length)];
+
+                // Ajouter des ennemis, pièges et trésors aléatoirement
+                let cellContent = randomTerrain;
+                if (includeEnemies && Math.random() < 0.05) cellContent = '⚔️';
+                if (includeTraps && Math.random() < 0.05) cellContent = '🕳️';
+                if (includeTreasures && Math.random() < 0.02) cellContent = '💎';
+
+                cell.textContent = cellContent;
+                cell.style.width = `${cellSize}px`;
+                cell.style.height = `${cellSize}px`;
+                rowDiv.appendChild(cell);
+            }
+
+            mapContainer.appendChild(rowDiv);
+        }
+    }
+
+    document.getElementById('generate-map').addEventListener('click', () => {
+        const size = document.getElementById('map-size').value;
+        const cellSize = document.getElementById('cell-size').value;
+        
+        const terrainCheckboxes = document.querySelectorAll('.terrain-option:checked');
+        const terrains = Array.from(terrainCheckboxes).map(checkbox => checkbox.value);
+
+        const includeEnemies = document.getElementById('include-enemies').checked;
+        const includeTraps = document.getElementById('include-traps').checked;
+        const includeTreasures = document.getElementById('include-treasures').checked;
+
+        generateMap(size, cellSize, terrains, includeEnemies, includeTraps, includeTreasures);
+    });
+
+    document.getElementById('download-map').addEventListener('click', () => {
+        const mapContainer = document.getElementById('map-container');
+        html2canvas(mapContainer).then(canvas => {
+            const link = document.createElement('a');
+            link.download = 'carte-dnd.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        });
+    });
+</script>
+
+<style>
+    #map-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 20px;
+    }
+
+    .map-row {
+        display: flex;
+    }
+
+    .map-cell {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border: 1px solid #333;
+        font-size: 24px;
+    }
+
+    label {
+        display: inline-block;
+        margin-right: 10px;
+    }
+
+    button {
+        margin-top: 10px;
+        margin-right: 10px;
+    }
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</body>
+</html>
